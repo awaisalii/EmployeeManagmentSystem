@@ -90,6 +90,8 @@ namespace EmployeeManagmentSystem.Controllers
                 else
                 {
                     var userWithEmail = await _userManager.FindByEmailAsync(loginRequest.Email);
+                    if (userWithEmail != null)
+                    {
                     var activity = new Activities
                     {
                         Text = user?.FirstName + " " + user.LastName + " " + "Failed Login attempt on " ,
@@ -97,6 +99,7 @@ namespace EmployeeManagmentSystem.Controllers
                         Date = DateTime.UtcNow,
                     };
                     await _activities.CreateActivity(activity);
+                    }
                     return Unauthorized("Invalid credentials.");
                 }
             }

@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeManagmentSystem.Controllers
 {
-    
+
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TasksController : Controller
