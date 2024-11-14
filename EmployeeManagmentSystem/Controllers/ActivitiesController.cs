@@ -23,5 +23,12 @@ namespace EmployeeManagmentSystem.Controllers
             var result =await _activities.GetAll();
             return Ok(result);
         }
+
+        [HttpGet("User/{id}")]
+        public async Task<IActionResult> GetByUserId(string id )
+        {
+            var result = await _activities.GetAllByUser(id);
+            return Ok(result);
+        }
     }
 }

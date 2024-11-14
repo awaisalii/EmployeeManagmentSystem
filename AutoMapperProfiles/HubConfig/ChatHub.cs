@@ -35,6 +35,7 @@ namespace BuisnessLayer.HubConfig
         {
             var senderUserId = Context.UserIdentifier;
             var result=await _chats.CreatePrivateChat(receiverUserId,senderUserId,message);
+            result.SenderId = senderUserId;
             if (connectedUsers.TryGetValue(receiverUserId, out var connectionIds))
             {
                 foreach (var connectionId in connectionIds)

@@ -39,11 +39,13 @@ namespace DataAccessLayer.Repositories
             return new ServiceResponse(false, "Error");
         }
 
-        public async Task<IEnumerable<ApplicationUser>> GetAllUsers()
-        {
+        public async Task<IEnumerable<UserDto>> GetAllUsers()
+       {
             var users = await _userManager.Users.ToListAsync();
-            return users;
+            var mappedData = _mapper.Map<IEnumerable<UserDto>>(users);
+            return mappedData;
         }
+
 
         public async Task<UserDto> GetUser(string id, string requestScheme, string requestHost)
             {
@@ -52,7 +54,7 @@ namespace DataAccessLayer.Repositories
             {
                 await _appDbContext.Entry(user).Collection(u => u.Tasks).LoadAsync();
                 await _appDbContext.Entry(user).Collection(u => u.Notes).LoadAsync();
-                await _appDbContext.Entry(user).Collection(u => u.Activities).LoadAsync();
+                var roles = await _userManager.GetRolesAsync(user);
                 string imagePath;
 
                 if (!string.IsNullOrEmpty(user.ImagePath))
@@ -68,11 +70,9 @@ namespace DataAccessLayer.Repositories
 
                 var userDto=_mapper.Map<UserDto>(user);
                 userDto.ImagePath = imagePath;
-                var newNotes= userDto.Notes.OrderByDescending(note => note.Date).ToList();
-                var ReversedActivities = userDto.Activities.OrderByDescending(activity => activity.Date).ToList();
+                var ReversedActivities = userDto.Activities.OrderByDescending(activity => activity.Date).Take(100).ToList();
                 userDto.Activities = ReversedActivities;
-                userDto.Notes = newNotes;
-
+                userDto.Role = roles.ToList();
                 return userDto;
             }
             return null;
@@ -122,7 +122,8 @@ namespace DataAccessLayer.Repositories
             existingUser.LastName = !string.IsNullOrEmpty(user?.LastName) ? user.LastName : existingUser.LastName;
             existingUser.HiredDate = user.HiredDate ?? existingUser.HiredDate; 
             existingUser.BirthDate = user.BirthDate ?? existingUser.BirthDate;
-            existingUser.Status = user.Status==null ? existingUser.Status : (StatusSelectBox)user.Status  ;
+            //existingUser.Status = user.Status==null ? existingUser.;
+                
             existingUser.Country = !string.IsNullOrEmpty(user?.Country) ? user.Country : existingUser.Country;
             existingUser.Address = !string.IsNullOrEmpty(user?.Address) ? user.Address : existingUser.Address;
             existingUser.State = !string.IsNullOrEmpty(user?.State) ? user.State : existingUser.State;
@@ -132,7 +133,7 @@ namespace DataAccessLayer.Repositories
             var result = await _userManager.UpdateAsync(existingUser);
             if (result.Succeeded)
             {
-                var response = _mapper.Map<UserDto>(result);
+                var response = _mapper.Map<UserDto>(existingUser);
                 return response;
             }
             return null;

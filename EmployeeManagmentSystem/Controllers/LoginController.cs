@@ -64,17 +64,17 @@ namespace EmployeeManagmentSystem.Controllers
                         configuration["Jwt:Issuer"],
                         configuration["Jwt:Audience"],
                         claims,
-                        expires: DateTime.UtcNow.AddMinutes(10),
+                        expires: DateTime.UtcNow.AddDays(30),
                         signingCredentials: signIn
                     );
                     var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
                     var imagePath = user.ImagePath != null ? $"{Request.Scheme}://{Request.Host}/uploads/images/{Uri.EscapeDataString(user.ImagePath)}" : null;
                     var userResponse = new UserResponseModel
                     {
-                        Id = user.Id,
-                        UserName = user.FirstName +" " + user.LastName,
-                        Email = user.Email,
-                        Role = roles[0],
+                        Id = user?.Id,
+                        UserName = user?.FirstName +" " + user.LastName,
+                        Email = user?.Email,
+                        Role = roles?[0],
                         ImagePath=imagePath,
                         Token = jwtToken
                     };

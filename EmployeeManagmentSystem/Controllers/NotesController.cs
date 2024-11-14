@@ -45,7 +45,7 @@ namespace EmployeeManagmentSystem.Controllers
             return Ok(result);
         }
 
-        [HttpGet("User{id}")]
+        [HttpGet("User/{id}")]
         public async Task<IActionResult> GetUserNotes(string id)
         {
             var result =await _iNote.GetAllByUser(id);

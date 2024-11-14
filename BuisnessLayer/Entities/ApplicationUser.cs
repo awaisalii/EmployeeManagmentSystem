@@ -11,7 +11,7 @@ namespace BuisnessLayer.Entities
         public string? LastName { get; set; }
         public DateTime HiredDate { get; set; }
         public DateTime BirthDate { get; set; }
-        public StatusSelectBox? Status { get; set; }
+        public string? Status { get; set; }
         public string? Country { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
@@ -22,7 +22,7 @@ namespace BuisnessLayer.Entities
         public virtual ICollection<Notes> Notes { get; set; } = new HashSet<Notes>();
         public virtual ICollection<Activities> Activities { get; set; } = new HashSet<Activities>();
         public virtual ApplicationUser? AssignedTo { get; set; }
-        public string? AssignedToId { get; set; }
+        public string? AssignedToId { get; set; }   
         public int? GroupChatId { get; set; }
         public GroupChat GroupChat { get; set; }
         public virtual ICollection<ChatUser> ChatUsers { get; set; } = new HashSet<ChatUser>();

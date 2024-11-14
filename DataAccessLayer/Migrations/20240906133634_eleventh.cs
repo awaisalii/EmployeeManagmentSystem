@@ -10,13 +10,6 @@ namespace DataAccessLayer.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<int>(
-                name: "Status",
-                table: "AspNetUsers",
-                type: "integer",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
 
             migrationBuilder.AlterColumn<string>(
                 name: "State",
@@ -94,15 +87,6 @@ namespace DataAccessLayer.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Status",
-                table: "AspNetUsers",
-                type: "text",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(int),
-                oldType: "integer",
-                oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "State",

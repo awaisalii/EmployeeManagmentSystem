@@ -21,12 +21,11 @@ namespace BuisnessLayer.DTO.Request
         public string PhoneNumber { get; set; }
         public DateTime HiredDate { get; set; }
         public DateTime BirthDate { get; set; }
-        public int Status { get; set; }
+        public string? Status { get; set; }
         public string? Country { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
         public string Address { get; set; }
-        public string Username { get; set; }
         public IFormFile?  Image { get; set; }
         public string? AssignedTo { get; set; }
     }

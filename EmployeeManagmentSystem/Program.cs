@@ -16,22 +16,14 @@ using AutoMapper;
 using BuisnessLayer.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Configure Logging (Optional but recommended for debugging)
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
-
-// Add services to the container.
 builder.Services.AddControllers();
-
-// Add Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-
-    // Add JWT Bearer Authentication to Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -60,16 +52,12 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
-// Configure JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
         options.JsonSerializerOptions.WriteIndented = true;
     });
-
-// Configure Entity Framework and Identity
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultString"))
 );
@@ -77,8 +65,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, RoleModel>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
-
-// Register repositories and services
 builder.Services.AddScoped<IUser, UserRepo>();
 builder.Services.AddScoped<ITask, TaskRepo>();
 builder.Services.AddScoped<ItokenService, TokenService>();
@@ -87,8 +73,6 @@ builder.Services.AddScoped<INote, NotesRepo>();
 builder.Services.AddScoped<IActivities, ActivitiesRepo>();
 builder.Services.AddScoped<IChats, ChatsRepo>();
 builder.Services.AddScoped<IMessages, MessagesRepo>();
-
-// Configure Authentication with JWT Bearer
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -106,15 +90,11 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
-
-    // Configure JWT Bearer to read tokens from query string for SignalR
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
             var accessToken = context.Request.Query["access_token"];
-
-            // If the request is for our SignalR hubs
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) &&
                 (path.StartsWithSegments("/chatHub") || path.StartsWithSegments("/toastr")))
@@ -126,14 +106,11 @@ builder.Services.AddAuthentication(options =>
     };
 
 });
-
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Role=Employee", policy => policy.RequireRole("Employee"));
     options.AddPolicy("Role=HR", policy => policy.RequireRole("HR"));
 });
-
-// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -143,16 +120,13 @@ builder.Services.AddCors(options =>
                           .AllowCredentials());
 });
 
-// Configure AutoMapper
+
 var mapperConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new MapperProfile());
 });
-
 var mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
-
-// Configure SignalR
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
@@ -160,26 +134,19 @@ builder.Services.AddSignalR(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// Serve static files from "uploads/images"
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(app.Environment.ContentRootPath, "uploads", "images")),
     RequestPath = "/uploads/images"
 });
-
 app.UseHttpsRedirection();
-
 app.UseRouting();
-
-// Apply CORS policy
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();

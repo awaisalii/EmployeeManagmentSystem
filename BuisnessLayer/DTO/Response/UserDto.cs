@@ -21,16 +21,17 @@ namespace BuisnessLayer.DTO.Response
         public string? LastName { get; set; }
         public DateTime? HiredDate { get; set; }
         public DateTime? BirthDate { get; set; }
-        public string? Status { get; set; }
+        public StatusSelectBox? Status { get; set; }
         public string? Country { get; set; }
         public string? City { get; set; }
         public string? State { get; set; }
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string ImagePath { get; set; }
-        public ICollection<NotesDto>? Notes { get; set; }
         public List<ActivitiesRequest>? Activities { get; set; }
         public string? AssignedTo { get; set; }
         public string? AssignedToId { get; set; }
+        public List<string>? Role { get; set; }
+
     }
 }
