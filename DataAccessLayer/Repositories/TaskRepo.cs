@@ -78,21 +78,40 @@ namespace DataAccessLayer.Repositories
 
 
 
-        public async Task<ServiceResponse> DeleteTaskAsync(string taskId,string userId)
+        public async Task<ServiceResponse> DeleteTaskAsync(string taskId, string userId)
         {
-            var check = await _context.TasksModel.FindAsync(int.Parse(taskId));
-            if (check == null)
+            if (!int.TryParse(taskId, out var parsedTaskId))
             {
-                return new ServiceResponse(false, "Not Found");
+                return new ServiceResponse(false, "Invalid Task ID");
             }
-            var notes = _context.Notes.Where(n => n.TaskId == check.Id).ToList();
-            _context.Notes.RemoveRange(notes);
-            var activities = _context.Activities.Where(a => a.TaskId == check.Id).ToList();
-            _context.Activities.RemoveRange(activities);
-            _context.TasksModel.Remove(check);
-            await _context.SaveChangesAsync();
-            return new ServiceResponse(true, "Deleted Successdfully");
+
+            var task = await _context.TasksModel.FindAsync(parsedTaskId);
+            if (task == null)
+            {
+                return new ServiceResponse(false, "Task not found");
+            }
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Notes.RemoveRange(_context.Notes.Where(n => n.TaskId == task.Id));
+                _context.Activities.RemoveRange(_context.Activities.Where(a => a.TaskId == task.Id));
+                var groupChat = _context.GroupChats.FirstOrDefault(x => x.TaskModelId == task.Id);
+                if (groupChat != null)
+                {
+                    _context.GroupChats.Remove(groupChat);
+                }
+                _context.TasksModel.Remove(task);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return new ServiceResponse(true, "Task deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new ServiceResponse(false, $"An error occurred: {ex.Message}");
+            }
         }
+
 
         public async Task<List<TaskDto>> GetAllAsync()
         {

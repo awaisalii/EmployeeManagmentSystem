@@ -21,7 +21,7 @@ namespace EmployeeManagmentSystem.Controllers
         private readonly IUser _iuser;
         private IConfiguration _configuration;
         private readonly ItokenService _itokenService;
-        IWebHostEnvironment env;
+        IWebHostEnvironment _env;
         public UserController(UserManager<ApplicationUser> userManager, RoleManager<RoleModel> roleManager , IUser Iuser , IConfiguration configuration, ItokenService _ItokenService , IWebHostEnvironment env )
         {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -29,7 +29,7 @@ namespace EmployeeManagmentSystem.Controllers
             _iuser = Iuser;
             _configuration = configuration;
             _itokenService = _ItokenService;
-            this.env = env;
+            this._env = env;
         }
 
 
@@ -47,7 +47,8 @@ namespace EmployeeManagmentSystem.Controllers
                 return BadRequest("Invalid registration details.");
             }
             string FileName = "";
-            if(register.Image !=null)
+            string imageUrl = "";
+            if (register.Image !=null)
             {
                 string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "images");
                 if (!Directory.Exists(folderPath))
@@ -57,6 +58,12 @@ namespace EmployeeManagmentSystem.Controllers
                 FileName = Guid.NewGuid().ToString() + "_"+ register.Image.FileName ;
                 string filePath = Path.Combine(folderPath,FileName);
                 register.Image.CopyTo(new FileStream(filePath,FileMode.Create));
+                string requestScheme = HttpContext.Request.Scheme;
+                string requestHost = HttpContext.Request.Host.Value;
+                string baseUrl = _env.IsDevelopment()
+                    ? $"{requestScheme}://{requestHost}/" 
+                    : $"{requestScheme}://{requestHost}/";  
+                imageUrl = $"{baseUrl}uploads/images/{FileName}";
             }
             var assignedToUser = _userManager.Users.Where(x=>x.Id==register.AssignedTo).FirstOrDefault();
             var user = new ApplicationUser
@@ -76,7 +83,7 @@ namespace EmployeeManagmentSystem.Controllers
                 State = register.State,
                 City = register.City,
                 PhoneNumber = register.PhoneNumber,
-                ImagePath = FileName,
+                ImagePath = imageUrl,
                 AssignedTo = assignedToUser
             };
 
@@ -178,7 +185,9 @@ namespace EmployeeManagmentSystem.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser( [FromForm] UpdateUserRequest User)
         {
-            var resuult = await _iuser.UpdateUserAsync(User);
+            string requestScheme = HttpContext.Request.Scheme;
+            string requestHost = HttpContext.Request.Host.Value;
+            var resuult = await _iuser.UpdateUserAsync(User, requestScheme, requestHost);
             return Ok(resuult);
         }
 

@@ -43,7 +43,9 @@ namespace EmployeeManagmentSystem.Controllers
                 var user = await _userManager.FindByEmailAsync(loginRequest.Email);
                 if (user != null && await _userManager.CheckPasswordAsync(user, loginRequest.Password))
                 {
-                   var roles = await _userManager.GetRolesAsync(user); 
+                   var roles = await _userManager.GetRolesAsync(user);
+                    var expiration = DateTimeOffset.UtcNow.AddDays(30).ToUnixTimeSeconds();
+                    var issuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     var claims = new List<Claim>
                     {
                         new Claim(JwtRegisteredClaimNames.Sub, configuration["Jwt:Subject"]),
@@ -52,8 +54,10 @@ namespace EmployeeManagmentSystem.Controllers
                         new Claim("UserName", user.UserName),
                         new Claim("Email", user.Email),
                         new Claim(ClaimTypes.NameIdentifier, user.Id), 
-                        new Claim(ClaimTypes.Name, user.UserName)
-                        };
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(JwtRegisteredClaimNames.Iat, issuedAt.ToString(), ClaimValueTypes.Integer64), 
+                        new Claim(JwtRegisteredClaimNames.Exp, expiration.ToString(), ClaimValueTypes.Integer64)
+                    };
                     foreach (var role in roles)
                     {
                         claims.Add(new Claim(ClaimTypes.Role, role));

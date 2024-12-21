@@ -3,6 +3,7 @@ using System;
 using DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241119115937_attendence")]
+    partial class attendence
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,6 +98,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("GroupChatId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("GroupChatId1")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("HiredDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -158,6 +164,8 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("GroupChatId");
 
+                    b.HasIndex("GroupChatId1");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -176,10 +184,10 @@ namespace DataAccessLayer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AttendenceId"));
 
-                    b.Property<DateTime?>("CheckIn")
+                    b.Property<DateTime>("CheckIn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("CheckOut")
+                    b.Property<DateTime>("CheckOut")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("Date")
@@ -542,9 +550,13 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("AssignedToId");
 
                     b.HasOne("BuisnessLayer.Entities.GroupChat", "GroupChat")
-                        .WithMany("ChatUsers")
+                        .WithMany()
                         .HasForeignKey("GroupChatId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BuisnessLayer.Entities.GroupChat", null)
+                        .WithMany("ChatUsers")
+                        .HasForeignKey("GroupChatId1");
 
                     b.Navigation("AssignedTo");
 

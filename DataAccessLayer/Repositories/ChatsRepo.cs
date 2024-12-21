@@ -1,4 +1,5 @@
-﻿using AutoMapper.Execution;
+﻿using AutoMapper;
+using AutoMapper.Execution;
 using BuisnessLayer.DTO.Response;
 using BuisnessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace DataAccessLayer.Repositories
     public class ChatsRepo : IChats
     {
         private readonly AppDbContext _appDbContext;
+        private readonly IMapper _mapper;
 
-        public ChatsRepo(AppDbContext appDbContext)
+        public ChatsRepo(AppDbContext appDbContext,IMapper mapper)
         {
             this._appDbContext = appDbContext;
+            this._mapper = mapper;
         }
         public Task CreateGroupChat(GroupChat groupChat )
         {
@@ -107,6 +110,39 @@ namespace DataAccessLayer.Repositories
             }).ToList();
             return result;
         }
+
+        public async Task<AllChatsResponse> GetChats(string id)
+        {
+            var privateChats = await _appDbContext.PrivateChats
+                .Where(x => x.ChatUsers.Any(cu => cu.ApplicationUserId == id))
+                .Include(x => x.ChatUsers)
+                .ToListAsync();
+            var allChatUserIds = privateChats
+                .SelectMany(chat => chat.ChatUsers)
+                .Select(cu => cu.ApplicationUserId)
+                .Distinct()
+                .Where(userId => userId != id)
+                .ToList();
+            var users = _appDbContext.Users
+                .Where(x => allChatUserIds.Contains(x.Id))
+                .ToList();
+            var userResponse = _mapper.Map<List<UserDto>>(users);
+            var groupChats = _appDbContext.GroupChats
+                .Where(x => x.TaskModelId == 0)
+                .ToList();
+            var PrivateChatResponse = new PrivateChatResponse()
+            {
+                ChatsUsers = userResponse
+            };
+            var chats = new AllChatsResponse()
+            {
+                PrivateChats = PrivateChatResponse,
+                GroupChats = groupChats 
+            };
+            return chats; 
+        }
+
+
         public async Task<List<MessageReponse>> GetPrivateChat(string receiverUserId, string senderId)
         {
             var user1 = await _appDbContext.Users.FindAsync(receiverUserId);

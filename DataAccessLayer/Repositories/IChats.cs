@@ -18,5 +18,6 @@ namespace DataAccessLayer.Repositories
         Task CreateGroupChat(GroupChat groupChat);
         Task DeleteGroupChat();
         Task UpdateGroupChat();
+        Task<AllChatsResponse> GetChats(string id);
     }
 }

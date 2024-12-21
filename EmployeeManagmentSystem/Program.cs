@@ -66,6 +66,7 @@ builder.Services.AddIdentity<ApplicationUser, RoleModel>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<IUser, UserRepo>();
+builder.Services.AddScoped<IAttendence, AttendenceRepo>();
 builder.Services.AddScoped<ITask, TaskRepo>();
 builder.Services.AddScoped<ItokenService, TokenService>();
 builder.Services.AddScoped<ISelectBox, UserSelectBoxRepo>();

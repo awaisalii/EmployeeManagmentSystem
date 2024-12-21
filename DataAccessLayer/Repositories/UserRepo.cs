@@ -55,21 +55,10 @@ namespace DataAccessLayer.Repositories
                 await _appDbContext.Entry(user).Collection(u => u.Tasks).LoadAsync();
                 await _appDbContext.Entry(user).Collection(u => u.Notes).LoadAsync();
                 var roles = await _userManager.GetRolesAsync(user);
-                string imagePath;
-
-                if (!string.IsNullOrEmpty(user.ImagePath))
-                {
-                    imagePath = $"{requestScheme}://{requestHost}/uploads/images/{Uri.EscapeDataString(user.ImagePath)}";
-                }
-                else
-                {
-                    imagePath = $"{requestScheme}://{requestHost}/uploads/images/nouser.jpeg";
-                }
 
                 var assignedToUser=_userManager.Users.Where(x=>x.Id == user.AssignedToId).FirstOrDefault();
 
                 var userDto=_mapper.Map<UserDto>(user);
-                userDto.ImagePath = imagePath;
                 var ReversedActivities = userDto.Activities.OrderByDescending(activity => activity.Date).Take(100).ToList();
                 userDto.Activities = ReversedActivities;
                 userDto.Role = roles.ToList();
@@ -80,11 +69,12 @@ namespace DataAccessLayer.Repositories
 
 
 
-        public async Task<UserDto> UpdateUserAsync(UpdateUserRequest user)
+        public async Task<UserDto> UpdateUserAsync(UpdateUserRequest user,string requestScheme,string requestHost)
         {
             var existingUser = await _userManager.FindByIdAsync(user.Id);
 
             string FileName = "";
+            string imageUrl = "";
             if (user.Image != null)
             {
                 string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "images");
@@ -93,10 +83,12 @@ namespace DataAccessLayer.Repositories
                     Directory.CreateDirectory(folderPath);
                 }
                 FileName = Guid.NewGuid().ToString() + "_" + user.Image.FileName;
-                string filePath = Path.Combine(folderPath, FileName);
+                string filePath = Path.Combine(folderPath, FileName);   
                 user.Image.CopyTo(new FileStream(filePath, FileMode.Create));
-                existingUser.ImagePath = FileName;
-            }
+                string baseUrl = $"{requestScheme}://{requestHost}/";
+                imageUrl = $"{baseUrl}uploads/images/{FileName}";
+                existingUser.ImagePath = imageUrl;
+            }   
             if (!string.IsNullOrEmpty(user.AssignedToId) && user.AssignedToId != "null")
             {
                 var assignedToUser = _userManager.Users

@@ -27,6 +27,8 @@ namespace BuisnessLayer.Entities
         public GroupChat GroupChat { get; set; }
         public virtual ICollection<ChatUser> ChatUsers { get; set; } = new HashSet<ChatUser>();
         public virtual ICollection<Messages> MessagesSent { get; set; } = new HashSet<Messages>(); // Navigation property for sent messages
+        public virtual ICollection<Attendence> Attendences { get; set; }=new HashSet<Attendence>();
+
     }
 
 }

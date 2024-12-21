@@ -17,6 +17,7 @@ namespace DataAccessLayer
         public DbSet<PrivateChat> PrivateChats { get; set; }
         public DbSet<Activities> Activities { get; set; }
         public DbSet<Messages> Messages { get; set; }
+        public DbSet<Attendence> Attendence { get; set; }   
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -86,6 +87,15 @@ namespace DataAccessLayer
                .HasOne(gc => gc.AssociatedTask)
                .WithOne(t => t.GroupChat)
                .HasForeignKey<GroupChat>(gc => gc.TaskModelId);
+            modelBuilder.Entity<Attendence>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.Attendences)
+                .HasForeignKey(a => a.UserId);
+             modelBuilder.Entity<ApplicationUser>()
+        .HasOne(u => u.GroupChat)
+        .WithMany(gc => gc.ChatUsers)
+        .HasForeignKey(u => u.GroupChatId)
+        .OnDelete(DeleteBehavior.Cascade); 
         }
 
         internal async Task FindAsync(string taskId)
