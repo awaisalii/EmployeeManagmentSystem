@@ -26,4 +26,6 @@
     <ProjectReference Include="..\Helper\Helper.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://www.cardgamesimulator.com/schema/cgs.json" /></VisualStudio></ProjectExtensions>
+
 </Project>
