@@ -2,14 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "EmployeeManagementSystem/**/*.cs",
-      "use": "@vercel/dotnet"
+      "src": "EmployeeManagementSystem/EmployeeManagementSystem.csproj",
+      "use": "@vercel/dotnet",
+      "config": {
+        "command": "dotnet restore && dotnet build EmployeeManagementSystem/EmployeeManagementSystem.csproj -c Release"
+      }
     }
   ],
   "routes": [
-  {
-    "src": "/(.*)",
-    "dest": "/api" 
-  }
-]
+    {
+      "src": "/(.*)",
+      "dest": "/api"
+    }
+  ]
 }
