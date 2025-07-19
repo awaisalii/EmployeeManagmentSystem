@@ -114,11 +114,10 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:4200")
-                          .AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .AllowCredentials());
+    options.AddPolicy("AllowWebApp",
+        builder => builder.WithOrigins("https://ems-b8gfarhjcfg7ezer.centralindia-01.azurewebsites.net")
+                         .AllowAnyMethod()
+                         .AllowAnyHeader());
 });
 
 
@@ -160,5 +159,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<MyHub>("/toastr");
     endpoints.MapHub<ChatHub>("/chatHub").RequireAuthorization();
 });
+app.UseCors("AllowWebApp");
+
 
 app.Run();
